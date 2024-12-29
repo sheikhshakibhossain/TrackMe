@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Schedule</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 style="text-align:center;">Weekly Schedule</h1>
+    <table id="scheduleTable">
+        <thead>
+            <tr>
+                <th>Day</th>
+                <th>Timeframe</th>
+                <th>Title</th>
+                <th>Room</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        async function loadExcel() {
+            try {
+                const response = await fetch('routine.xlsx');
+                const arrayBuffer = await response.arrayBuffer();
+
+                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                populateSchedule(jsonData);
+            } catch (error) {
+                console.error('Error loading Excel file:', error);
+            }
+        }
+
+        function populateSchedule(data) {
+            const tableBody = document.getElementById('scheduleTable').querySelector('tbody');
+            tableBody.innerHTML = ""; // Clear existing rows
+
+            data.forEach(row => {
+                const day = row.Day1 && row.Day2 ? `${row.Day1}, ${row.Day2}` : row.Day1 || row.Day2 || "";
+
+                // Check for duplicate timeframes
+                const timeframe = (row.Time1 === row.Time2)
+                    ? row.Time1
+                    : (row.Time1 && row.Time2)
+                        ? `${row.Time1} / ${row.Time2}`
+                        : row.Time1 || row.Time2 || "";
+
+                const tableRow = document.createElement('tr');
+                tableRow.innerHTML = `
+            <td>${day}</td>
+            <td>${timeframe}</td>
+            <td>${row.Title || ""}</td>
+            <td>${row.Room1 || row.Room2 || ""}</td>
+        `;
+                tableBody.appendChild(tableRow);
+            });
+        }
+
+
+        // Load the Excel file on page load
+        loadExcel();
+    </script>
+
+</body>
+
+</html>
