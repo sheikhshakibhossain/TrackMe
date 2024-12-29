@@ -206,7 +206,7 @@
             const currentDay = getCurrentDay();
             const currentTime = getCurrentTime();
 
-            var currentActivity = "I'm not available right now. Drop me an email if you need anything.";
+            var currentActivity = "I'm not available right now. Drop me an <a href='mailto:abid@cse.uiu.ac.bd'>email</a> if you need anything.";
 
             for (const row of scheduleData) {
                 const day = formatDay(row.Day1, row.Day2);
@@ -226,11 +226,12 @@
                 } else if (day.includes(currentDay) && currentMinutes >= officeStart && currentMinutes <= officeEnd) {
                     currentActivity = `I'm available in my office (Room:619). In case you don't find me there, I'm just a call away.`;
                 } else if (day.includes(currentDay)) {
-                    currentActivity = "My class and office hours have ended💤, I am not at UIU right now. If you need to say something, please send me an email.";
+                    currentActivity = "My class and office hours have ended💤, I am not at UIU right now. If you need to say something, please send me an <a href='mailto:abid@cse.uiu.ac.bd'>email</a>.";
                 }
             }
 
-            document.getElementById('activityText').textContent = currentActivity;
+            // document.getElementById('activityText').textContent = currentActivity;
+            document.getElementById('activityText').innerHTML = currentActivity;
         }
 
         // Load the Excel file on page load
