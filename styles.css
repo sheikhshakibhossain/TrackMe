@@ -1,0 +1,86 @@
+body {
+    background: #121212;
+    color: #f0f0f0;
+    font-family: 'Orbitron', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    overflow-x: hidden;
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+h1 {
+    font-size: 2.5em;
+    color: #00e6e6;
+    font-weight: 700;
+    margin-bottom: 20px;
+    text-shadow: 0 0 25px rgba(0, 255, 255, 0.8);
+}
+
+#currentActivity {
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 255, 255, 0.5);
+    width: 95%;
+    max-width: 90%;
+    color: #fff;
+    animation: fadeIn 1s ease-out;
+    box-sizing: border-box;
+    overflow-y: auto;
+    max-height: 70vh;
+    margin-left: 5%;
+    margin-bottom: 50%;
+}
+
+.activity-summary {
+    font-size: 1.8em;
+    color: #00e6e6;
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
+
+.activity-text {
+    font-size: 1.4em;
+    font-weight: 400;
+    color: rgba(0, 255, 255, 0.8);
+    line-height: 1.4;
+}
+
+.icon-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+    animation: rotate 15s infinite linear;
+}
+
+.icon-container svg {
+    width: 100px;
+    height: 100px;
+    margin: 15px;
+    fill: #00e6e6;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
