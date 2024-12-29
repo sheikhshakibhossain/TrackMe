@@ -6,41 +6,122 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Track Me!</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        table {
-            width: 80%;
-            margin: 20px auto;
-            border-collapse: collapse;
+        /* General Body Styles */
+        body {
+            background: #121212;
+            color: #f0f0f0;
+            font-family: 'Orbitron', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            text-align: center;
         }
 
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
+        h1 {
+            font-size: 4em;
+            color: #00e6e6;
+            font-weight: 700;
+            margin-bottom: 50px;
+            text-shadow: 0 0 25px rgba(0, 255, 255, 0.8);
         }
 
-        th {
-            background-color: #f4f4f4;
+        /* Current Activity Container */
+        #currentActivity {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 255, 255, 0.5);
+            width: 90%;
+            max-width: 600px;
+            margin-top: 20px;
+            color: #fff;
+            animation: fadeIn 1s ease-out;
+        }
+
+        /* Activity Summary */
+        .activity-summary {
+            font-size: 2.8em;
+            color: #00e6e6;
+            font-weight: 700;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+        .activity-text {
+            font-size: 2.5em;
+            font-weight: 400;
+            color: #ff4d4d;
+            line-height: 1.4;
+        }
+
+        /* Icon Container */
+        .icon-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            animation: rotate 15s infinite linear;
+        }
+
+        .icon-container svg {
+            width: 70px;
+            height: 70px;
+            margin: 15px;
+            fill: #00e6e6;
+        }
+
+        /* Keyframes */
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
     </style>
 </head>
 
 <body>
-    <h1 style="text-align:center;">Track Me!</h1>
-    <table id="scheduleTable">
-        <thead>
-            <tr>
-                <th>Day</th>
-                <th>Timeframe</th>
-                <th>Title</th>
-                <th>Room</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+    <div>
+        <h1>Track Me!</h1>
 
-    <div id="currentActivity" style="text-align: center; margin-top: 20px;"></div>
+        <!-- Rotating icons -->
+        <div class="icon-container">
+            <!-- Mechanical gear icon (high quality SVG) -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+                <path d="M32 0C14.4 0 0 14.4 0 32s14.4 32 32 32 32-14.4 32-32S49.6 0 32 0zm0 60C16.8 60 4 47.2 4 32S16.8 4 32 4s28 12.8 28 28-12.8 28-28 28zm0-48c-11.2 0-20 8.8-20 20s8.8 20 20 20 20-8.8 20-20-8.8-20-20-20z"/>
+            </svg>
+
+            <!-- Robot arm icon (high quality SVG) -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+                <path d="M32 0c-1.1 0-2 .9-2 2v34.1l-10.6-3.9c-1.7-.6-3.5.4-3.5 2.2s1.6 3.1 3.2 2.6l7.8-2.9c1.5-.6 2.7 1.1 2.7 2.6v6.4l-4.2-1.5c-1.5-.5-2.9.3-3.4 1.7s.3 2.9 1.7 3.4l6.5 2.3c1.6.5 3.3-.6 3.3-2.3v-9.5l-6.6-2.4c-1.3-.5-2.3-1.8-2.3-3.1v-10h2c1.1 0 2-.9 2-2V2c0-1.1-.9-2-2-2z"/>
+            </svg>
+        </div>
+
+        <!-- Current Activity Section -->
+        <div id="currentActivity">
+            <div class="activity-summary">
+                <span></span>
+            </div>
+            <div id="activityText" class="activity-text">Loading...</div>
+        </div>
+    </div>
 
     <script>
         async function loadExcel() {
@@ -53,7 +134,6 @@
                 const worksheet = workbook.Sheets[firstSheetName];
 
                 const jsonData = XLSX.utils.sheet_to_json(worksheet);
-                populateSchedule(jsonData);
                 checkCurrentActivity(jsonData);
             } catch (error) {
                 console.error('Error loading Excel file:', error);
@@ -79,25 +159,6 @@
                 return time1 || "";
             }
             return [time1, time2].filter(Boolean).join(' / ') || "";
-        }
-
-        function populateSchedule(data) {
-            const tableBody = document.getElementById('scheduleTable').querySelector('tbody');
-            tableBody.innerHTML = ""; // Clear existing rows
-
-            data.forEach(row => {
-                const day = formatDay(row.Day1, row.Day2);
-                const timeframe = formatTime(row.Time1, row.Time2);
-
-                const tableRow = document.createElement('tr');
-                tableRow.innerHTML = `
-                    <td>${day}</td>
-                    <td>${timeframe}</td>
-                    <td>${row.Title || ""}</td>
-                    <td>${row.Room1 || row.Room2 || ""}</td>
-                `;
-                tableBody.appendChild(tableRow);
-            });
         }
 
         function getCurrentDay() {
@@ -128,14 +189,6 @@
             const currentDay = getCurrentDay();
             const currentTime = getCurrentTime();
 
-            // Testing Purpose
-            // const currentTime = '18:30';
-            // const currentDay = 'Monday';
-
-            const activityElement = document.getElementById('currentActivity');
-            // console.log(currentDay);
-            // console.log(currentTime);
-
             var currentActivity = "I'm not available right now💤    Drop me an email if you need anything.";
 
             for (const row of scheduleData) {
@@ -143,9 +196,6 @@
                 const timeframe = formatTime(row.Time1, row.Time2);
 
                 const [startTime, endTime] = timeframe.split(' - ').map(time => time.trim());
-                // console.log(startTime);
-                // console.log(endTime);
-
                 const startMinutes = timeToMinutes(startTime);
                 const endMinutes = timeToMinutes(endTime);
                 const currentMinutes = timeToMinutes(currentTime);
@@ -153,32 +203,20 @@
                 const officeStart = timeToMinutes('08:30');
                 const officeEnd = timeToMinutes('04:30');
 
-                // console.log(startMinutes);
-                // console.log(endMinutes);
-                // console.log(currentMinutes);
-
-                // if (currentMinutes >= startMinutes && currentMinutes <= endMinutes) {
-                //     console.log("Current time is within the timeframe");
-                // } else {
-                //     console.log("Current time is outside the timeframe");
-                // }
-
-                // Check if the current time falls within the timeframe of this row
                 if (day.includes(currentDay) && currentMinutes >= startMinutes && currentMinutes <= endMinutes) {
                     currentActivity = `Currently, I'm taking ${row.Title} in Room ${row.Room1 || row.Room2 || ""}`;
-                    flag = true;
                     break;
                 } else if (day.includes(currentDay) && currentMinutes >= officeStart && currentMinutes <= officeEnd) {
                     currentActivity = `I'm available in my office (Room:619). In case you don't find me there, I'm just a call away.`;
                 }
             }
-            activityElement.textContent = currentActivity;
+
+            document.getElementById('activityText').textContent = currentActivity;
         }
 
         // Load the Excel file on page load
         loadExcel();
     </script>
-
 </body>
 
 </html>
