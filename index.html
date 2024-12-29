@@ -233,10 +233,14 @@
             document.getElementById('activityText').innerHTML = currentActivity;
         }
 
-
-
         // Load the Excel file on page load
         loadExcel();
+
+        setInterval(function () {
+            location.reload();
+            console.log('page refreshed');
+        }, 60000);
+
     </script>
 </body>
 
