@@ -113,25 +113,55 @@
             return `${hours}:${minutes}`;
         }
 
-        function checkCurrentActivity(scheduleData) {
-            const currentDay = getCurrentDay();
-            const currentTime = getCurrentTime();
-            const activityElement = document.getElementById('currentActivity');
+        function timeToMinutes(time) {
+            let [hours, minutes, period] = time.split(':');
+            hours = parseInt(hours, 10);
+            minutes = parseInt(minutes, 10);
 
-            console.log(currentDay);
-            console.log(currentTime);
-            
-            let currentActivity = "You're not doing anything right now!";
-            
+            if (period === "PM" && hours !== 12) hours += 12;
+            if (period === "AM" && hours === 12) hours = 0;
+
+            return hours * 60 + minutes;
+        }
+
+        function checkCurrentActivity(scheduleData) {
+            // const currentDay = getCurrentDay();
+            const currentTime = getCurrentTime();
+
+            // Testing Purpose
+            // const currentTime = '18:30';
+            const currentDay = 'Monday';
+
+            const activityElement = document.getElementById('currentActivity');
+            // console.log(currentDay);
+            // console.log(currentTime);
+
+            var currentActivity = "I'm not available right now💤    Drop me an email if you need anything.";
+
             for (const row of scheduleData) {
                 const day = formatDay(row.Day1, row.Day2);
                 const timeframe = formatTime(row.Time1, row.Time2);
-                
+
                 const [startTime, endTime] = timeframe.split(' - ').map(time => time.trim());
+                // console.log(startTime);
+                // console.log(endTime);
+
+                const startMinutes = timeToMinutes(startTime);
+                const endMinutes = timeToMinutes(endTime);
+                const currentMinutes = timeToMinutes(currentTime);
+                console.log(startMinutes);
+                // console.log(endMinutes);
+                // console.log(currentMinutes);
+
+                // if (currentMinutes >= startMinutes && currentMinutes <= endMinutes) {
+                //     console.log("Current time is within the timeframe");
+                // } else {
+                //     console.log("Current time is outside the timeframe");
+                // }
 
                 // Check if the current time falls within the timeframe of this row
-                if (day.includes(currentDay)) {
-                    currentActivity = `Currently, you are doing: ${row.Title} in Room ${row.Room1 || row.Room2 || ""}`;
+                if (day.includes(currentDay) && currentMinutes >= startMinutes && currentMinutes <= endMinutes) {
+                    currentActivity = `Currently, I'm taking ${row.Title} in Room ${row.Room1 || row.Room2 || ""}`;
                     break;
                 }
             }
