@@ -40,6 +40,8 @@
         <tbody></tbody>
     </table>
 
+    <div id="currentActivity" style="text-align: center; margin-top: 20px;"></div>
+
     <script>
         async function loadExcel() {
             try {
@@ -52,9 +54,31 @@
 
                 const jsonData = XLSX.utils.sheet_to_json(worksheet);
                 populateSchedule(jsonData);
+                checkCurrentActivity(jsonData);
             } catch (error) {
                 console.error('Error loading Excel file:', error);
             }
+        }
+
+        function formatDay(day1, day2) {
+            const days = {
+                "Mon": "Monday",
+                "Tue": "Tuesday",
+                "Wed": "Wednesday",
+                "Thu": "Thursday",
+                "Fri": "Friday",
+                "Sat": "Saturday",
+                "Sun": "Sunday"
+            };
+            const formattedDays = [day1, day2].map(day => days[day] || day).filter(Boolean);
+            return formattedDays.join(', ') || "";
+        }
+
+        function formatTime(time1, time2) {
+            if (time1 === time2) {
+                return time1 || "";
+            }
+            return [time1, time2].filter(Boolean).join(' / ') || "";
         }
 
         function populateSchedule(data) {
@@ -62,26 +86,58 @@
             tableBody.innerHTML = ""; // Clear existing rows
 
             data.forEach(row => {
-                const day = row.Day1 && row.Day2 ? `${row.Day1}, ${row.Day2}` : row.Day1 || row.Day2 || "";
-
-                // Check for duplicate timeframes
-                const timeframe = (row.Time1 === row.Time2)
-                    ? row.Time1
-                    : (row.Time1 && row.Time2)
-                        ? `${row.Time1} / ${row.Time2}`
-                        : row.Time1 || row.Time2 || "";
+                const day = formatDay(row.Day1, row.Day2);
+                const timeframe = formatTime(row.Time1, row.Time2);
 
                 const tableRow = document.createElement('tr');
                 tableRow.innerHTML = `
-            <td>${day}</td>
-            <td>${timeframe}</td>
-            <td>${row.Title || ""}</td>
-            <td>${row.Room1 || row.Room2 || ""}</td>
-        `;
+                    <td>${day}</td>
+                    <td>${timeframe}</td>
+                    <td>${row.Title || ""}</td>
+                    <td>${row.Room1 || row.Room2 || ""}</td>
+                `;
                 tableBody.appendChild(tableRow);
             });
         }
 
+        function getCurrentDay() {
+            const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            const currentDate = new Date();
+            return days[currentDate.getDay()];
+        }
+
+        function getCurrentTime() {
+            const currentDate = new Date();
+            const hours = currentDate.getHours().toString().padStart(2, '0');
+            const minutes = currentDate.getMinutes().toString().padStart(2, '0');
+            return `${hours}:${minutes}`;
+        }
+
+        function checkCurrentActivity(scheduleData) {
+            const currentDay = getCurrentDay();
+            const currentTime = getCurrentTime();
+            const activityElement = document.getElementById('currentActivity');
+
+            console.log(currentDay);
+            console.log(currentTime);
+            
+            let currentActivity = "You're not doing anything right now!";
+            
+            for (const row of scheduleData) {
+                const day = formatDay(row.Day1, row.Day2);
+                const timeframe = formatTime(row.Time1, row.Time2);
+                
+                const [startTime, endTime] = timeframe.split(' - ').map(time => time.trim());
+
+                // Check if the current time falls within the timeframe of this row
+                if (day.includes(currentDay)) {
+                    currentActivity = `Currently, you are doing: ${row.Title} in Room ${row.Room1 || row.Room2 || ""}`;
+                    break;
+                }
+            }
+
+            activityElement.textContent = currentActivity;
+        }
 
         // Load the Excel file on page load
         loadExcel();
