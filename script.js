@@ -50,6 +50,8 @@ function timeToMinutes(time) {
 function checkCurrentActivity(scheduleData) {
     const currentDay = getCurrentDay();
     const currentTime = getCurrentTime();
+    let classFlag = false;
+    let counsellingFlag = false;
     let currentActivity = "I'm not available right now. Drop me an <a href='mailto:abid@cse.uiu.ac.bd' style='color: inherit; font-weight: bold; text-decoration: underline;'>email</a> if you need anything.";
 
     for (const row of scheduleData) {
@@ -59,10 +61,36 @@ function checkCurrentActivity(scheduleData) {
         const [start, end] = timeframe.split(' - ').map(time => timeToMinutes(time.trim()));
         const current = timeToMinutes(currentTime);
 
-        if (day.includes(currentDay) && current >= start && current <= end) {
-            currentActivity = `Currently, I'm taking ${row.Title} course at ClassRoom(${row.Room1 || row.Room2 || ""}).`;
+        const officeStart = timeToMinutes('08:30:AM');
+        const officeEnd = timeToMinutes('04:30:PM');
+
+        // let currentDay = 'Tuesday';
+        // let current = timeToMinutes('12:00:PM');
+
+        if (currentDay == 'Monday') {
+            currentActivity = "I don't have a regular class today. However, please call me to find out when I'll be in my office.";
             break;
         }
+
+        if (currentDay == 'Thursday' || currentDay == 'Friday') {
+            currentActivity = "This is the weekly holliday, I'm not available today. Drop me an <a href='mailto:abid@cse.uiu.ac.bd' style='color: inherit; font-weight: bold; text-decoration: underline;'>email</a>. Happy Hollydays!";
+            break;
+        }
+
+        if (day.includes(currentDay) && current >= start && current <= end) {
+            currentActivity = `Currently, I'm taking ${row.Title} course at ClassRoom(${row.Room1 || row.Room2 || ""}).`;
+            classFlag = true;
+            break;
+        }
+
+        if (day.includes(currentDay) && current >= officeStart && current <= officeEnd) {
+            counsellingFlag = true;
+        }
+
+    }
+    
+    if (classFlag == false && counsellingFlag == true) {
+        currentActivity = "I'm available for counselling. In case you don't find me in my office, give me a call.";
     }
 
     document.getElementById('activityText').innerHTML = currentActivity;
