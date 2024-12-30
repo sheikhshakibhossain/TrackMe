@@ -52,6 +52,7 @@ function checkCurrentActivity(scheduleData) {
     const currentTime = getCurrentTime();
     let classFlag = false;
     let counsellingFlag = false;
+    let todayIsOfficeDay = false;
     let currentActivity = "I'm not available right now. Drop me an <a href='mailto:abid@cse.uiu.ac.bd' style='color: inherit; font-weight: bold; text-decoration: underline;'>email</a> if you need anything.";
 
     for (const row of scheduleData) {
@@ -65,7 +66,7 @@ function checkCurrentActivity(scheduleData) {
         const officeEnd = timeToMinutes('04:30:PM');
 
         // let currentDay = 'Tuesday';
-        // let current = timeToMinutes('12:00:PM');
+        // let current = timeToMinutes('11:00:AM');
 
         if (currentDay == 'Monday') {
             currentActivity = "I don't have a regular class today. However, please call me to find out when I'll be in my office.";
@@ -87,10 +88,18 @@ function checkCurrentActivity(scheduleData) {
             counsellingFlag = true;
         }
 
+        if (day.includes(currentDay)){
+            todayIsOfficeDay = true;
+        }
+
     }
     
     if (classFlag == false && counsellingFlag == true) {
         currentActivity = "I'm available for counselling. In case you don't find me in my office, give me a call.";
+    }
+
+    if (classFlag == false && counsellingFlag == false && todayIsOfficeDay == true) {
+        currentActivity = "My office time is over for today. If you need anything, send me an <a href='mailto:abid@cse.uiu.ac.bd' style='color: inherit; font-weight: bold; text-decoration: underline;'>email</a>.";
     }
 
     document.getElementById('activityText').innerHTML = currentActivity;
